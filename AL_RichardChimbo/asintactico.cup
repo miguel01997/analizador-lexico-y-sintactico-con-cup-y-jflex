@@ -1,0 +1,158 @@
+package al_richardchimbo;
+import java_cup.runtime.*;
+
+import java.io.FileReader;
+
+/*­­­­ Sección componentes de código de usuario ­­­­*/
+parser code {:
+
+ /*  public void syntax_error(Symbol s) {
+ report_error("Error de sintaxis en linea " + s.left, null);
+}
+
+
+public void unrecovered_syntax_error(Symbol s) throws
+  java.lang.Exception {
+  report_fatal_error("", null);
+}
+*/
+    public void report_error(String message, Object info) {
+//        StringBuilder m = new StringBuilder("Error:");
+     	StringBuffer m = new StringBuffer("Error");
+//System.out.println("Mensaje: "+message);
+//System.out.println("info: "+info.toString());
+		if(info instanceof java_cup.runtime.Symbol) {
+			java_cup.runtime.Symbol s=((java_cup.runtime.Symbol)info);
+
+if (s.sym==7||s.sym==0){
+    
+    if(s.sym==7){
+       
+      /* Comprueba si el numero de línea es mayor o igual que cero */
+            if((s.left) >= 0) {
+                m.append(" en linea "+((s.left)));
+               
+                /*Comprueba si el numero de columna es mayor o igual que cero */
+                if ((s.right) >= 0){
+                    m.append(", columna "+((s.right +1) -1));  
+                }
+            }
+    }else{
+
+
+    }
+    message= "  Error  Falta FINLINEA ó a ingresado un carácter no válido ";
+     message= " Asegurese de seguir la siguiente estructura: 15 kilogramos convertir onzas_ ";
+    //message="Falta carácter FINLINEA";
+}else{
+    
+			
+		if (s.left != 0) {                
+                m.append(" linea "+((s.left+1)));
+          
+                if (s.right != 0)
+                    m.append(", columna "+((s.right)+1));
+                   // System.out.println("Right="+s.right);
+                }
+
+                if (s.sym == 6) {
+                    message="Error Ingrese medida a la que desea transformar";
+                }
+
+                if (s.sym == 4) {
+                    message="Falta el operador CONVERTIR";
+                }
+
+                if (s.sym == 3 || s.sym == 5) {
+                    message="Ingrese el número o valor a convertir";
+                }
+
+                if (s.sym ==2) {
+                    message="Ingrese la primera unidad de medida ";
+                }
+
+                }
+
+        }
+		m.append(" : "+ message);
+	    System.err.println(m);
+       // System.out.println("Cadena " + m);
+    }
+             
+             
+    public void report_fatal_error(String message, Object info) {
+       	report_error(message, info);
+		System.exit(1);
+    }
+             
+    public static void main(String[] args){
+        try {
+            AnalizadorSintactico asin = new AnalizadorSintactico(
+                    new Lexer( new FileReader(args[0])));
+            Object result = asin.parse().value;
+            System.out.println("\n*** Resultados finales ***");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }             
+:};
+/*Declaracion de simbolos terminales y no terminales*/
+
+terminal OPERADOR, KILOGRAMO, LIBRA, ONZA, FINLINEA;
+
+terminal double VARIABLE;
+
+non terminal Object ee, ep;
+non terminal exp;
+//non terminal errores;
+
+    ee ::= ee ep | ep;
+    ep ::= exp:e 
+    {: System.out.println("Respuesta es : " + e);:}
+    FINLINEA;
+    
+
+        exp ::= VARIABLE:e KILOGRAMO OPERADOR LIBRA
+        {:
+            System.out.println( e + " Kilogramos "+ " convertir a " + " libras" );
+            RESULT = new Double (e*2.2);
+        
+         :}
+            
+            |
+                
+            VARIABLE:e  KILOGRAMO OPERADOR ONZA
+        {:
+            System.out.println(e + " Kilogramos "+ " convertir a " + " Onzas" );
+            RESULT = new Double (e*35.274);
+            
+         :}
+            |
+            VARIABLE:e LIBRA OPERADOR KILOGRAMO
+        {: 
+            System.out.println(e + " Libras "+ " convertir a " + " Kilogramos" );
+            RESULT = new Double (e/2.20);
+            
+         :}
+            | 
+            VARIABLE:e LIBRA OPERADOR ONZA
+        {:   
+            System.out.println(e + " Libras "+ " convertir a " + " onzas" );
+            RESULT = new Double (e*16);
+            
+         :}
+            | 
+            VARIABLE:e ONZA OPERADOR KILOGRAMO
+        {: 
+            System.out.println(e + " onzas " + " convertir a " + " kilogramos" );
+            RESULT = new Double (e/35.274);
+            
+        :}
+            |
+            VARIABLE:e ONZA OPERADOR LIBRA
+        {:
+            System.out.println(e + " onzas "+ " convertir a " + " libras" );
+            RESULT = new Double (e*0.062500);
+            :}
+                 ;
+
